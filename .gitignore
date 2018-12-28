@@ -9,3 +9,4 @@ control_loop/AVR/Atmega32A/PIDvsFuzzy/PIDvsFuzzy/PIDvsFuzzy.componentinfo.xml
 *.srec
 *.lss
 *.eep
+data_processing/plotter/.idea/
