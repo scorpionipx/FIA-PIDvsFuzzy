@@ -29,7 +29,7 @@ void init_control_loop(void)
 	TIMSK |= (1 << TOIE0);
 	REVOLUTIONS_PER_MINUTE = 0;
 	TICKS = 0;
-	TARGET_TICKS = 20;
+	TARGET_TICKS = 0;
 	CONTROL_LOOP = CONTROL_LOOP_PID;
 }
 
