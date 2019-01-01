@@ -1,12 +1,1 @@
-control_loop/AVR/Atmega32A/PIDvsFuzzy/PIDvsFuzzy/PIDvsFuzzy.cproj
-control_loop/AVR/Atmega32A/PIDvsFuzzy/.vs/PIDvsFuzzy/v14/.atsuo
-control_loop/AVR/Atmega32A/PIDvsFuzzy/PIDvsFuzzy.atsln
-control_loop/AVR/Atmega32A/PIDvsFuzzy/PIDvsFuzzy/PIDvsFuzzy.componentinfo.xml
-*.o
-*.d
-*.mk
-*.map
-*.srec
-*.lss
-*.eep
 data_processing/plotter/.idea/
