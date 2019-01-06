@@ -8,6 +8,8 @@ control_loop.c
 
 display_driver.c
 
+eeprom_driver.c
+
 fuzzy.c
 
 main.c

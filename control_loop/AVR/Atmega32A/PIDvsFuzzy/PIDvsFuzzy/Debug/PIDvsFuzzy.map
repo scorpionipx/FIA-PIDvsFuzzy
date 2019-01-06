@@ -33,7 +33,7 @@ c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/..
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(mulsf3x.o)
                               c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(mulsf3.o) (__mulsf3x)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
-                              C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o (exit)
+                              C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o (exit)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_copy_data.o)
                               display_driver.o (__do_copy_data)
 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_clear_bss.o)
@@ -56,19 +56,27 @@ power_supply_voltage
 CONTROL_LOOP        0x1               control_loop.o
 REVOLUTIONS_PER_MINUTE
                     0x2               adc_driver.o
+fuzzy_delta_error   0x2               fuzzy.o
 REVOLUTIONS         0x2               adc_driver.o
 pid_error           0x4               control_loop.o
 TICKS               0x2               control_loop.o
+DATA_STREAMING      0x2               adc_driver.o
+fuzzy_result        0x2               fuzzy.o
 TIMER0_CNT          0x2               adc_driver.o
 pid_integral        0x4               control_loop.o
+fuzzy_delta_error_index
+                    0x2               fuzzy.o
 TARGET_TICKS        0x2               control_loop.o
 dummy               0x2               adc_driver.o
+fuzzy_previous_error
+                    0x2               fuzzy.o
 KI                  0x4               control_loop.o
+fuzzy_error_index   0x2               fuzzy.o
 
 Discarded input sections
 
- .data          0x00000000        0x0 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
- .bss           0x00000000        0x0 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .data          0x00000000        0x0 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .bss           0x00000000        0x0 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
  .text          0x00000000        0x0 adc_driver.o
  .data          0x00000000        0x0 adc_driver.o
  .bss           0x00000000        0x0 adc_driver.o
@@ -82,11 +90,30 @@ Discarded input sections
                 0x00000000      0x13c display_driver.o
  .text.display_4d
                 0x00000000       0x6a display_driver.o
+ .text          0x00000000        0x0 eeprom_driver.o
+ .data          0x00000000        0x0 eeprom_driver.o
+ .bss           0x00000000        0x0 eeprom_driver.o
+ .text.eeprom_write
+                0x00000000       0x10 eeprom_driver.o
+ .text.eeprom_read
+                0x00000000        0xe eeprom_driver.o
+ .text.load_fuzzy_table_from_eeprom
+                0x00000000        0x2 eeprom_driver.o
+ .text.save_fuzzy_table_to_eeprom
+                0x00000000       0x64 eeprom_driver.o
+ .debug_info    0x00000000      0x21e eeprom_driver.o
+ .debug_abbrev  0x00000000      0x136 eeprom_driver.o
+ .debug_loc     0x00000000      0x10a eeprom_driver.o
+ .debug_aranges
+                0x00000000       0x38 eeprom_driver.o
+ .debug_ranges  0x00000000       0x28 eeprom_driver.o
+ .debug_line    0x00000000      0x17d eeprom_driver.o
+ .debug_str     0x00000000      0x275 eeprom_driver.o
+ .comment       0x00000000       0x31 eeprom_driver.o
+ .debug_frame   0x00000000       0x7c eeprom_driver.o
  .text          0x00000000        0x0 fuzzy.o
  .data          0x00000000        0x0 fuzzy.o
  .bss           0x00000000        0x0 fuzzy.o
- .bss.fuzzy_table
-                0x00000000       0x5a fuzzy.o
  .text          0x00000000        0x0 main.o
  .data          0x00000000        0x0 main.o
  .bss           0x00000000        0x0 main.o
@@ -229,10 +256,11 @@ user_signatures  0x00850000         0x00000400         rw !x
 
 Linker script and memory map
 
-LOAD C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
+LOAD C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
 LOAD adc_driver.o
 LOAD control_loop.o
 LOAD display_driver.o
+LOAD eeprom_driver.o
 LOAD fuzzy.o
 LOAD main.o
 LOAD optocoupler_driver.o
@@ -246,7 +274,7 @@ START GROUP
 LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a
 LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a
 LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libc.a
-LOAD C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5\libatmega32a.a
+LOAD C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5\libatmega32a.a
 END GROUP
                 0x00020000                __TEXT_REGION_LENGTH__ = DEFINED (__TEXT_REGION_LENGTH__)?__TEXT_REGION_LENGTH__:0x20000
                 0x0000ffa0                __DATA_REGION_LENGTH__ = DEFINED (__DATA_REGION_LENGTH__)?__DATA_REGION_LENGTH__:0xffa0
@@ -346,9 +374,9 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0xa26
+.text           0x00000000      0xd04
  *(.vectors)
- .vectors       0x00000000       0x54 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .vectors       0x00000000       0x54 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
                 0x00000000                __vector_default
                 0x00000000                __vectors
  *(.vectors)
@@ -376,13 +404,13 @@ END GROUP
  SORT(*)(.ctors)
  SORT(*)(.dtors)
  *(.init0)
- .init0         0x00000054        0x0 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .init0         0x00000054        0x0 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
                 0x00000054                __init
  *(.init0)
  *(.init1)
  *(.init1)
  *(.init2)
- .init2         0x00000054        0xc C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .init2         0x00000054        0xc C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
  *(.init2)
  *(.init3)
  *(.init3)
@@ -401,15 +429,14 @@ END GROUP
  *(.init8)
  *(.init8)
  *(.init9)
- .init9         0x00000086        0x8 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .init9         0x00000086        0x8 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
  *(.init9)
  *(.text)
- .text          0x0000008e        0x4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .text          0x0000008e        0x4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
                 0x0000008e                __vector_12
                 0x0000008e                __bad_interrupt
                 0x0000008e                __vector_6
                 0x0000008e                __vector_3
-                0x0000008e                __vector_13
                 0x0000008e                __vector_17
                 0x0000008e                __vector_19
                 0x0000008e                __vector_7
@@ -433,113 +460,128 @@ END GROUP
                 0x0000009e       0x16 adc_driver.o
                 0x0000009e                adc_get_value
  .text.init_control_loop
-                0x000000b4       0x2e control_loop.o
+                0x000000b4       0x3a control_loop.o
                 0x000000b4                init_control_loop
  .text.__vector_1
-                0x000000e2       0x64 control_loop.o
-                0x000000e2                __vector_1
+                0x000000ee       0x64 control_loop.o
+                0x000000ee                __vector_1
  .text.__vector_11
-                0x00000146       0xda control_loop.o
-                0x00000146                __vector_11
+                0x00000152       0xe6 control_loop.o
+                0x00000152                __vector_11
  .text.init_display
-                0x00000220       0x14 display_driver.o
-                0x00000220                init_display
+                0x00000238       0x14 display_driver.o
+                0x00000238                init_display
  .text.update_display_buffer_2d
-                0x00000234       0x94 display_driver.o
-                0x00000234                update_display_buffer_2d
+                0x0000024c       0x94 display_driver.o
+                0x0000024c                update_display_buffer_2d
  .text.display_2d
-                0x000002c8       0x3a display_driver.o
-                0x000002c8                display_2d
+                0x000002e0       0x3a display_driver.o
+                0x000002e0                display_2d
  .text.init_fuzzy
-                0x00000302        0xa fuzzy.o
-                0x00000302                init_fuzzy
- .text.fuzzy    0x0000030c       0x4c fuzzy.o
-                0x0000030c                fuzzy
- .text.main     0x00000358       0x3e main.o
-                0x00000358                main
+                0x0000031a       0x12 fuzzy.o
+                0x0000031a                init_fuzzy
+ .text.defuzzy_error
+                0x0000032c       0x74 fuzzy.o
+                0x0000032c                defuzzy_error
+ .text.defuzzy_delta_error
+                0x000003a0       0x40 fuzzy.o
+                0x000003a0                defuzzy_delta_error
+ .text.fuzzy    0x000003e0       0xd6 fuzzy.o
+                0x000003e0                fuzzy
+ .text.main     0x000004b6       0x52 main.o
+                0x000004b6                main
  .text.init_optocoupler
-                0x00000396       0x26 optocoupler_driver.o
-                0x00000396                init_optocoupler
+                0x00000508       0x26 optocoupler_driver.o
+                0x00000508                init_optocoupler
  .text.init_pid
-                0x000003bc       0x9a pid.o
-                0x000003bc                init_pid
- .text.pid      0x00000456      0x1ee pid.o
-                0x00000456                pid
+                0x0000052e       0x9a pid.o
+                0x0000052e                init_pid
+ .text.pid      0x000005c8      0x1ee pid.o
+                0x000005c8                pid
  .text.init_pwm
-                0x00000644       0x20 pwm_driver.o
-                0x00000644                init_pwm
+                0x000007b6       0x20 pwm_driver.o
+                0x000007b6                init_pwm
  .text.init_usart
-                0x00000664        0xe usart_driver.o
-                0x00000664                init_usart
+                0x000007d6        0xe usart_driver.o
+                0x000007d6                init_usart
  .text.usart_transmit
-                0x00000672        0x8 usart_driver.o
-                0x00000672                usart_transmit
+                0x000007e4        0x8 usart_driver.o
+                0x000007e4                usart_transmit
+ .text.transmit_fuzzy_table
+                0x000007ec       0x6a usart_driver.o
+                0x000007ec                transmit_fuzzy_table
+ .text.transmit_pid_constants
+                0x00000856       0x74 usart_driver.o
+                0x00000856                transmit_pid_constants
+ .text.__vector_13
+                0x000008ca       0x8e usart_driver.o
+                0x000008ca                __vector_13
  .text.avr-libc.fplib
-                0x0000067a        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(addsf3.o)
-                0x0000067a                __subsf3
-                0x0000067c                __addsf3
+                0x00000958        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(addsf3.o)
+                0x00000958                __subsf3
+                0x0000095a                __addsf3
  .text.avr-libc.fplib
-                0x00000688       0xcc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(addsf3x.o)
-                0x000006aa                __addsf3x
+                0x00000966       0xcc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(addsf3x.o)
+                0x00000988                __addsf3x
  .text.avr-libc.fplib
-                0x00000754        0xa c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(cmpsf2.o)
-                0x00000754                __nesf2
-                0x00000754                __eqsf2
-                0x00000754                __cmpsf2
-                0x00000754                __ltsf2
-                0x00000754                __lesf2
+                0x00000a32        0xa c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(cmpsf2.o)
+                0x00000a32                __nesf2
+                0x00000a32                __eqsf2
+                0x00000a32                __cmpsf2
+                0x00000a32                __ltsf2
+                0x00000a32                __lesf2
  .text.avr-libc.fplib
-                0x0000075e       0x5e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fixunssfsi.o)
-                0x0000075e                __fixunssfsi
+                0x00000a3c       0x5e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fixunssfsi.o)
+                0x00000a3c                __fixunssfsi
  .text.avr-libc.fplib
-                0x000007bc       0x7a c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(floatsisf.o)
-                0x000007bc                __floatunsisf
-                0x000007c0                __floatsisf
+                0x00000a9a       0x7a c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(floatsisf.o)
+                0x00000a9a                __floatunsisf
+                0x00000a9e                __floatsisf
  .text.avr-libc.fplib
-                0x00000836       0x48 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_cmp.o)
-                0x00000836                __fp_cmp
+                0x00000b14       0x48 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_cmp.o)
+                0x00000b14                __fp_cmp
  .text.avr-libc.fplib
-                0x0000087e        0xc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_inf.o)
-                0x0000087e                __fp_inf
+                0x00000b5c        0xc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_inf.o)
+                0x00000b5c                __fp_inf
  .text.avr-libc.fplib
-                0x0000088a        0x6 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_nan.o)
-                0x0000088a                __fp_nan
+                0x00000b68        0x6 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_nan.o)
+                0x00000b68                __fp_nan
  .text.avr-libc.fplib
-                0x00000890        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_pscA.o)
-                0x00000890                __fp_pscA
+                0x00000b6e        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_pscA.o)
+                0x00000b6e                __fp_pscA
  .text.avr-libc.fplib
-                0x0000089e        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_pscB.o)
-                0x0000089e                __fp_pscB
+                0x00000b7c        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_pscB.o)
+                0x00000b7c                __fp_pscB
  .text.avr-libc.fplib
-                0x000008ac       0x22 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_round.o)
-                0x000008ac                __fp_round
+                0x00000b8a       0x22 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_round.o)
+                0x00000b8a                __fp_round
  .text.avr-libc.fplib
-                0x000008ce       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_split3.o)
-                0x000008ce                __fp_split3
-                0x000008de                __fp_splitA
+                0x00000bac       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_split3.o)
+                0x00000bac                __fp_split3
+                0x00000bbc                __fp_splitA
  .text.avr-libc.fplib
-                0x00000912        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_zero.o)
-                0x00000912                __fp_zero
-                0x00000914                __fp_szero
+                0x00000bf0        0xe c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(fp_zero.o)
+                0x00000bf0                __fp_zero
+                0x00000bf2                __fp_szero
  .text.avr-libc.fplib
-                0x00000920        0xa c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(gesf2.o)
-                0x00000920                __gesf2
-                0x00000920                __gtsf2
+                0x00000bfe        0xa c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(gesf2.o)
+                0x00000bfe                __gesf2
+                0x00000bfe                __gtsf2
  .text.avr-libc.fplib
-                0x0000092a        0x8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(mulsf3.o)
-                0x0000092a                __mulsf3
+                0x00000c08        0x8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(mulsf3.o)
+                0x00000c08                __mulsf3
  .text.avr-libc.fplib
-                0x00000932       0xd2 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(mulsf3x.o)
-                0x00000950                __mulsf3x
-                0x00000956                __mulsf3_pse
+                0x00000c10       0xd2 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5\libm.a(mulsf3x.o)
+                0x00000c2e                __mulsf3x
+                0x00000c34                __mulsf3_pse
  .text.libgcc.mul
-                0x00000a04       0x1e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
-                0x00000a04                __umulhisi3
-                0x00000a22                . = ALIGN (0x2)
+                0x00000ce2       0x1e c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_umulhisi3.o)
+                0x00000ce2                __umulhisi3
+                0x00000d00                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00000a22        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
-                0x00000a22                _exit
-                0x00000a22                exit
+ .fini9         0x00000d00        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+                0x00000d00                _exit
+                0x00000d00                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -558,61 +600,71 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00000a22        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
+ .fini0         0x00000d00        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/5.4.0/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x00000a26                _etext = .
+                0x00000d04                _etext = .
 
-.data           0x00800060        0xa load address 0x00000a26
+.data           0x00800060       0x64 load address 0x00000d04
                 0x00800060                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
  .data.DIGIT    0x00800060        0xa display_driver.o
                 0x00800060                DIGIT
+ .data.fuzzy_table
+                0x0080006a       0x5a fuzzy.o
+                0x0080006a                fuzzy_table
  *(.gnu.linkonce.d*)
  *(.rodata)
  *(.rodata*)
  *(.gnu.linkonce.r*)
-                0x0080006a                . = ALIGN (0x2)
-                0x0080006a                _edata = .
-                0x0080006a                PROVIDE (__data_end, .)
+                0x008000c4                . = ALIGN (0x2)
+                0x008000c4                _edata = .
+                0x008000c4                PROVIDE (__data_end, .)
 
-.bss            0x0080006a       0x37
-                0x0080006a                PROVIDE (__bss_start, .)
+.bss            0x008000c4       0x43
+                0x008000c4                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
  .bss.DISPLAY_BUFFER
-                0x0080006a        0x4 display_driver.o
-                0x0080006a                DISPLAY_BUFFER
+                0x008000c4        0x4 display_driver.o
+                0x008000c4                DISPLAY_BUFFER
  *(COMMON)
- COMMON         0x0080006e        0xa adc_driver.o
-                0x0080006e                INT0_CNT
-                0x00800070                REVOLUTIONS_PER_MINUTE
-                0x00800072                REVOLUTIONS
-                0x00800074                TIMER0_CNT
-                0x00800076                dummy
- COMMON         0x00800078       0x29 control_loop.o
-                0x00800078                KD
-                0x0080007c                pid_result
-                0x00800080                fuzzy_error
-                0x00800082                pid_previous_error
-                0x00800086                pid_derivative
-                0x0080008a                KP
-                0x0080008e                power_supply_voltage
-                0x00800090                CONTROL_LOOP
-                0x00800091                pid_error
-                0x00800095                TICKS
-                0x00800097                pid_integral
-                0x0080009b                TARGET_TICKS
-                0x0080009d                KI
-                0x008000a1                PROVIDE (__bss_end, .)
-                0x00000a26                __data_load_start = LOADADDR (.data)
-                0x00000a30                __data_load_end = (__data_load_start + SIZEOF (.data))
+ COMMON         0x008000c8        0xc adc_driver.o
+                0x008000c8                INT0_CNT
+                0x008000ca                REVOLUTIONS_PER_MINUTE
+                0x008000cc                REVOLUTIONS
+                0x008000ce                DATA_STREAMING
+                0x008000d0                TIMER0_CNT
+                0x008000d2                dummy
+ COMMON         0x008000d4       0x29 control_loop.o
+                0x008000d4                KD
+                0x008000d8                pid_result
+                0x008000dc                fuzzy_error
+                0x008000de                pid_previous_error
+                0x008000e2                pid_derivative
+                0x008000e6                KP
+                0x008000ea                power_supply_voltage
+                0x008000ec                CONTROL_LOOP
+                0x008000ed                pid_error
+                0x008000f1                TICKS
+                0x008000f3                pid_integral
+                0x008000f7                TARGET_TICKS
+                0x008000f9                KI
+ COMMON         0x008000fd        0xa fuzzy.o
+                0x008000fd                fuzzy_delta_error
+                0x008000ff                fuzzy_result
+                0x00800101                fuzzy_delta_error_index
+                0x00800103                fuzzy_previous_error
+                0x00800105                fuzzy_error_index
+                0x00800107                PROVIDE (__bss_end, .)
+                0x00000d04                __data_load_start = LOADADDR (.data)
+                0x00000d68                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x008000a1        0x0
+.noinit         0x00800107        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
  *(.noinit*)
                 [!provide]                PROVIDE (__noinit_end, .)
-                0x008000a1                _end = .
+                0x00800107                _end = .
                 [!provide]                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
@@ -668,7 +720,7 @@ END GROUP
 .note.gnu.avr.deviceinfo
                 0x00000000       0x3c
  .note.gnu.avr.deviceinfo
-                0x00000000       0x3c C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
+                0x00000000       0x3c C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
 
 .note.gnu.build-id
  *(.note.gnu.build-id)
@@ -685,7 +737,7 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000      0x178
+.debug_aranges  0x00000000      0x1a0
  *(.debug_aranges)
  .debug_aranges
                 0x00000000       0x28 adc_driver.o
@@ -694,102 +746,103 @@ END GROUP
  .debug_aranges
                 0x00000058       0x40 display_driver.o
  .debug_aranges
-                0x00000098       0x28 fuzzy.o
+                0x00000098       0x38 fuzzy.o
  .debug_aranges
-                0x000000c0       0x20 main.o
+                0x000000d0       0x20 main.o
  .debug_aranges
-                0x000000e0       0x20 optocoupler_driver.o
+                0x000000f0       0x20 optocoupler_driver.o
  .debug_aranges
-                0x00000100       0x28 pid.o
+                0x00000110       0x28 pid.o
  .debug_aranges
-                0x00000128       0x20 pwm_driver.o
+                0x00000138       0x20 pwm_driver.o
  .debug_aranges
-                0x00000148       0x30 usart_driver.o
+                0x00000158       0x48 usart_driver.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x16f7
+.debug_info     0x00000000     0x1c8c
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x00000000      0x4e6 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
- .debug_info    0x000004e6      0x11a adc_driver.o
- .debug_info    0x00000600      0x33f control_loop.o
- .debug_info    0x0000093f      0x370 display_driver.o
- .debug_info    0x00000caf      0x18c fuzzy.o
- .debug_info    0x00000e3b      0x3c4 main.o
- .debug_info    0x000011ff       0xf4 optocoupler_driver.o
- .debug_info    0x000012f3      0x1df pid.o
- .debug_info    0x000014d2       0xed pwm_driver.o
- .debug_info    0x000015bf      0x138 usart_driver.o
+ .debug_info    0x00000000      0x4e6 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .debug_info    0x000004e6      0x138 adc_driver.o
+ .debug_info    0x0000061e      0x35d control_loop.o
+ .debug_info    0x0000097b      0x38e display_driver.o
+ .debug_info    0x00000d09      0x288 fuzzy.o
+ .debug_info    0x00000f91      0x408 main.o
+ .debug_info    0x00001399      0x112 optocoupler_driver.o
+ .debug_info    0x000014ab      0x1fd pid.o
+ .debug_info    0x000016a8      0x10b pwm_driver.o
+ .debug_info    0x000017b3      0x4d9 usart_driver.o
 
-.debug_abbrev   0x00000000      0xb5a
+.debug_abbrev   0x00000000      0xcbd
  *(.debug_abbrev)
- .debug_abbrev  0x00000000      0x4a3 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .debug_abbrev  0x00000000      0x4a3 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
  .debug_abbrev  0x000004a3       0x94 adc_driver.o
  .debug_abbrev  0x00000537      0x111 control_loop.o
  .debug_abbrev  0x00000648      0x147 display_driver.o
- .debug_abbrev  0x0000078f       0x7b fuzzy.o
- .debug_abbrev  0x0000080a      0x149 main.o
- .debug_abbrev  0x00000953       0x69 optocoupler_driver.o
- .debug_abbrev  0x000009bc       0x92 pid.o
- .debug_abbrev  0x00000a4e       0x69 pwm_driver.o
- .debug_abbrev  0x00000ab7       0xa3 usart_driver.o
+ .debug_abbrev  0x0000078f       0xe9 fuzzy.o
+ .debug_abbrev  0x00000878      0x131 main.o
+ .debug_abbrev  0x000009a9       0x69 optocoupler_driver.o
+ .debug_abbrev  0x00000a12       0x92 pid.o
+ .debug_abbrev  0x00000aa4       0x69 pwm_driver.o
+ .debug_abbrev  0x00000b0d      0x1b0 usart_driver.o
 
-.debug_line     0x00000000      0xd8b
+.debug_line     0x00000000     0x105b
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x00000000      0x115 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .debug_line    0x00000000      0x115 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
  .debug_line    0x00000115       0xf1 adc_driver.o
- .debug_line    0x00000206      0x1f7 control_loop.o
- .debug_line    0x000003fd      0x260 display_driver.o
- .debug_line    0x0000065d      0x10c fuzzy.o
- .debug_line    0x00000769      0x1dd main.o
- .debug_line    0x00000946       0xf7 optocoupler_driver.o
- .debug_line    0x00000a3d      0x170 pid.o
- .debug_line    0x00000bad       0xd1 pwm_driver.o
- .debug_line    0x00000c7e      0x10d usart_driver.o
+ .debug_line    0x00000206      0x203 control_loop.o
+ .debug_line    0x00000409      0x260 display_driver.o
+ .debug_line    0x00000669      0x218 fuzzy.o
+ .debug_line    0x00000881      0x1ef main.o
+ .debug_line    0x00000a70       0xf7 optocoupler_driver.o
+ .debug_line    0x00000b67      0x170 pid.o
+ .debug_line    0x00000cd7       0xd1 pwm_driver.o
+ .debug_line    0x00000da8      0x2b3 usart_driver.o
 
-.debug_frame    0x00000000      0x2b4
+.debug_frame    0x00000000      0x398
  *(.debug_frame)
  .debug_frame   0x00000000       0x34 adc_driver.o
  .debug_frame   0x00000034       0xa8 control_loop.o
  .debug_frame   0x000000dc       0x84 display_driver.o
- .debug_frame   0x00000160       0x34 fuzzy.o
- .debug_frame   0x00000194       0x24 main.o
- .debug_frame   0x000001b8       0x24 optocoupler_driver.o
- .debug_frame   0x000001dc       0x70 pid.o
- .debug_frame   0x0000024c       0x24 pwm_driver.o
- .debug_frame   0x00000270       0x44 usart_driver.o
+ .debug_frame   0x00000160       0x68 fuzzy.o
+ .debug_frame   0x000001c8       0x24 main.o
+ .debug_frame   0x000001ec       0x24 optocoupler_driver.o
+ .debug_frame   0x00000210       0x70 pid.o
+ .debug_frame   0x00000280       0x24 pwm_driver.o
+ .debug_frame   0x000002a4       0xf4 usart_driver.o
 
-.debug_str      0x00000000      0x5bd
+.debug_str      0x00000000      0x6a5
  *(.debug_str)
- .debug_str     0x00000000      0x196 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32a/avr5/crtatmega32a.o
- .debug_str     0x00000196      0x1b4 adc_driver.o
-                                0x1e8 (size before relaxing)
- .debug_str     0x0000034a      0x114 control_loop.o
-                                0x2ed (size before relaxing)
- .debug_str     0x0000045e       0xa5 display_driver.o
-                                0x299 (size before relaxing)
- .debug_str     0x00000503       0x18 fuzzy.o
-                                0x233 (size before relaxing)
- .debug_str     0x0000051b       0x3f main.o
-                                0x33c (size before relaxing)
- .debug_str     0x0000055a       0x1a optocoupler_driver.o
-                                0x1e7 (size before relaxing)
- .debug_str     0x00000574        0xb pid.o
-                                0x252 (size before relaxing)
- .debug_str     0x0000057f       0x12 pwm_driver.o
-                                0x1da (size before relaxing)
- .debug_str     0x00000591       0x2c usart_driver.o
+ .debug_str     0x00000000      0x196 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega32a/avr5/crtatmega32a.o
+ .debug_str     0x00000196      0x1d6 adc_driver.o
+                                0x20a (size before relaxing)
+ .debug_str     0x0000036c       0xfc control_loop.o
+                                0x30f (size before relaxing)
+ .debug_str     0x00000468       0xa5 display_driver.o
+                                0x2bb (size before relaxing)
+ .debug_str     0x0000050d       0x86 fuzzy.o
+                                0x2e7 (size before relaxing)
+ .debug_str     0x00000593       0x3f main.o
+                                0x35e (size before relaxing)
+ .debug_str     0x000005d2       0x1a optocoupler_driver.o
+                                0x209 (size before relaxing)
+ .debug_str     0x000005ec        0xb pid.o
+                                0x274 (size before relaxing)
+ .debug_str     0x000005f7       0x12 pwm_driver.o
                                 0x1fc (size before relaxing)
+ .debug_str     0x00000609       0x9c usart_driver.o
+                                0x377 (size before relaxing)
 
-.debug_loc      0x00000000      0x61f
+.debug_loc      0x00000000      0xc86
  *(.debug_loc)
  .debug_loc     0x00000000       0x3d adc_driver.o
  .debug_loc     0x0000003d      0x121 control_loop.o
  .debug_loc     0x0000015e      0x3a2 display_driver.o
- .debug_loc     0x00000500       0x48 main.o
- .debug_loc     0x00000548       0xb1 pid.o
- .debug_loc     0x000005f9       0x26 usart_driver.o
+ .debug_loc     0x00000500      0x239 fuzzy.o
+ .debug_loc     0x00000739       0x90 main.o
+ .debug_loc     0x000007c9       0xb1 pid.o
+ .debug_loc     0x0000087a      0x40c usart_driver.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -809,17 +862,17 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000       0xe8
+.debug_ranges   0x00000000      0x110
  *(.debug_ranges)
  .debug_ranges  0x00000000       0x18 adc_driver.o
  .debug_ranges  0x00000018       0x20 control_loop.o
  .debug_ranges  0x00000038       0x30 display_driver.o
- .debug_ranges  0x00000068       0x18 fuzzy.o
- .debug_ranges  0x00000080       0x10 main.o
- .debug_ranges  0x00000090       0x10 optocoupler_driver.o
- .debug_ranges  0x000000a0       0x18 pid.o
- .debug_ranges  0x000000b8       0x10 pwm_driver.o
- .debug_ranges  0x000000c8       0x20 usart_driver.o
+ .debug_ranges  0x00000068       0x28 fuzzy.o
+ .debug_ranges  0x00000090       0x10 main.o
+ .debug_ranges  0x000000a0       0x10 optocoupler_driver.o
+ .debug_ranges  0x000000b0       0x18 pid.o
+ .debug_ranges  0x000000c8       0x10 pwm_driver.o
+ .debug_ranges  0x000000d8       0x38 usart_driver.o
 
 .debug_macro
  *(.debug_macro)

@@ -13,6 +13,7 @@
 #include "adc_driver.h"
 #include "control_loop.h"
 #include "display_driver.h"
+#include "eeprom_driver.h"
 #include "fuzzy.h"
 #include "optocoupler_driver.h"
 #include "pid.h"
@@ -22,6 +23,7 @@
 
 int main(void)
 {
+	_delay_ms(100);
 	init_adc();
 	init_control_loop();
 	init_display();
@@ -32,6 +34,7 @@ int main(void)
 	init_usart(MYUBRR);
 	
 	_delay_ms(200);
+	UCSRB |= (1 << RXCIE); // Enable the USART receive Complete interrupt (USART_RXC)
 	
 	sei();
 	

@@ -20,4 +20,6 @@ int TARGET_TICKS;
 uint8_t CONTROL_LOOP;  // specifies desired control loop: PID or Fuzzy
 uint16_t power_supply_voltage;
 
+void init_control_loop(void);
+
 #endif /* CONTROL_LOOP_H_ */

@@ -11,18 +11,41 @@
 #include "optocoupler_driver.h"
 
 int fuzzy_error;
+int fuzzy_previous_error;
+int fuzzy_delta_error;
+int fuzzy_result;
+
+int fuzzy_error_index;
+int fuzzy_delta_error_index;
+
+//int fuzzy_table[5][9] = {
+	//{-6, -5, -4, -3, -2, -1, 0, 1, 2},
+	//{-5, -4, -3, -2, -1, 0, 1, 2, 3},
+	//{-4, -3, -2, -1, 0, 1, 2, 3, 4},
+	//{-3, -2, -1, 0, 1, 2, 3, 4, 5},
+	//{-2, -1, 0, 1, 2, 3, 4, 5, 6},
+//};
+
+//int fuzzy_table[5][9] = {
+	//{-8, -4, -2, -1, 0, 1, 2, 4, 8},
+	//{-8, -4, -2, -1, 0, 1, 2, 4, 8},
+	//{-8, -4, -2, -1, 0, 1, 2, 4, 8},
+	//{-8, -4, -2, -1, 0, 4, 8, 16, 32},
+	//{-8, -4, -2, -1, 0, 8, 16, 32, 64},
+//};
 
 int fuzzy_table[5][9] = {
-	{0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0, 0, 0},
+{-4, -3, -2, -1, 0, 1, 2, 3, 4},
+{-4, -3, -2, -1, 0, 1, 2, 3, 4},
+{-4, -3, -2, -1, 0, 1, 2, 3, 4},
+{-4, -3, -2, -1, 0, 1, 2, 3, 4},
+{-4, -3, -2, -1, 0, 1, 2, 3, 4},
 };
 
 void init_fuzzy(void)
 {
 	fuzzy_error = 0;
+	fuzzy_result = 0;
 }
 
 void fuzzy(void)
@@ -36,6 +59,83 @@ void fuzzy(void)
 	{
 		fuzzy_error = FUZZY_ERROR_CLAMPING;
 	}
-	OCR1B += 0;
 	
+	fuzzy_delta_error = fuzzy_previous_error - fuzzy_error;
+	
+	fuzzy_error_index = defuzzy_error(fuzzy_error);
+	fuzzy_delta_error_index = defuzzy_delta_error(fuzzy_delta_error);
+	
+	fuzzy_result = fuzzy_table[fuzzy_delta_error_index][fuzzy_error_index];
+	
+	OCR1B += 2 * fuzzy_result;
+	fuzzy_previous_error = fuzzy_error;
 }
+
+int defuzzy_error(const int error)
+{
+	if(error == 0)
+	{
+		return FUZZY_ERROR_Z;
+	}
+	if(error <= -23)
+	{
+		return FUZZY_ERROR_NFM;
+	}
+	if(error <= -15)
+	{
+		return FUZZY_ERROR_NM;
+	}
+	if(error <= -8)
+	{
+		return FUZZY_ERROR_Nm;
+	}
+	if(error < 0)
+	{
+		return FUZZY_ERROR_NFm;
+	}
+	if(error >= 23)
+	{
+		return FUZZY_ERROR_PFM;
+	}
+	if(error >= 15)
+	{
+		return FUZZY_ERROR_PM;
+	}
+	if(error >= 8) 
+	{
+		return FUZZY_ERROR_Pm;
+	}
+	if(error > 0)
+	{
+		return FUZZY_ERROR_PFm;
+	}
+	return 0;
+}
+
+int defuzzy_delta_error(const int delta_error)
+{
+	if(delta_error == 0)
+	{
+		return FUZZY_DELTA_ERROR_Z;
+	}
+	if(delta_error <= -15)
+	{
+		return FUZZY_DELTA_ERROR_NM;
+	}
+	if(delta_error < 0)
+	{
+		return FUZZY_DELTA_ERROR_Nm;
+	}
+	if(delta_error >= 15)
+	{
+		return FUZZY_DELTA_ERROR_PM;
+	}
+	if(delta_error > 0)
+	{
+		return FUZZY_DELTA_ERROR_Pm;
+	}
+	return 0;
+}
+
+
+

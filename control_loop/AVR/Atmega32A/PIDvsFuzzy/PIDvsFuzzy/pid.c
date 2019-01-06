@@ -22,7 +22,7 @@ float pid_result;
 
 void init_pid(void)
 {
-	KP = 25;
+	KP = 50;
 	KI = 1.2;
 	KD = 10;
 

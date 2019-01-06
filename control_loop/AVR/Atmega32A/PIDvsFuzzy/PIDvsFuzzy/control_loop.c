@@ -27,10 +27,12 @@ void init_control_loop(void)
 	
 	// enable overflow interrupt
 	TIMSK |= (1 << TOIE0);
+	DATA_STREAMING = FALSE;
 	REVOLUTIONS_PER_MINUTE = 0;
 	TICKS = 0;
-	TARGET_TICKS = 0;
-	CONTROL_LOOP = CONTROL_LOOP_PID;
+	TARGET_TICKS = 20;
+	// CONTROL_LOOP = CONTROL_LOOP_PID;
+	CONTROL_LOOP = CONTROL_LOOP_FUZZY;
 }
 
 ISR(INT0_vect)  // external interrupt_zero ISR (INT0)
@@ -71,14 +73,17 @@ ISR(TIMER0_OVF_vect)
 	
 	if(TIMER0_CNT >= 10)  // update display info every 163.84 ms
 	{
-		update_display_buffer_2d(TICKS);
+		 update_display_buffer_2d(TICKS);
 		TIMER0_CNT = 0;
 	}
-	usart_transmit(255);
-	usart_transmit(TARGET_TICKS);
-	usart_transmit(TICKS);
-	usart_transmit((uint8_t)(power_supply_voltage));
-	usart_transmit(0);
-	usart_transmit(0);
+	if(DATA_STREAMING)
+	{
+		usart_transmit(255);
+		usart_transmit(TARGET_TICKS);
+		usart_transmit(TICKS);
+		usart_transmit((uint8_t)(power_supply_voltage));
+		usart_transmit(0);
+		usart_transmit(0);
+	}
 	TICKS = 0;
 }
