@@ -16,6 +16,7 @@
 #include "usart_driver.h"
 
 int TARGET_TICKS;
+unsigned char start_flag_counter = 5;
 
 void init_control_loop(void)
 {
@@ -30,9 +31,10 @@ void init_control_loop(void)
 	DATA_STREAMING = FALSE;
 	REVOLUTIONS_PER_MINUTE = 0;
 	TICKS = 0;
-	TARGET_TICKS = 20;
+	TARGET_TICKS = 0;
+	CONTROL_LOOP_START_FLAG = 0;
 	// CONTROL_LOOP = CONTROL_LOOP_PID;
-	CONTROL_LOOP = CONTROL_LOOP_FUZZY;
+	CONTROL_LOOP = CONTROL_LOOP_NONE;
 }
 
 ISR(INT0_vect)  // external interrupt_zero ISR (INT0)
@@ -82,8 +84,17 @@ ISR(TIMER0_OVF_vect)
 		usart_transmit(TARGET_TICKS);
 		usart_transmit(TICKS);
 		usart_transmit((uint8_t)(power_supply_voltage));
-		usart_transmit(0);
-		usart_transmit(0);
+		usart_transmit(CONTROL_LOOP);
+		usart_transmit(CONTROL_LOOP_START_FLAG);
 	}
 	TICKS = 0;
+	if(CONTROL_LOOP_START_FLAG)
+	{
+		start_flag_counter --;
+		if(start_flag_counter == 0)
+		{
+			start_flag_counter = CONTROL_LOOP_START_FLAG_LENGTH;
+			CONTROL_LOOP_START_FLAG = 0;
+		}
+	}
 }

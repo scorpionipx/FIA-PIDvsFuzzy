@@ -33,8 +33,8 @@ int main(void)
 	init_pwm();
 	init_usart(MYUBRR);
 	
-	_delay_ms(200);
-	UCSRB |= (1 << RXCIE); // Enable the USART receive Complete interrupt (USART_RXC)
+	_delay_ms(3200);
+	enable_usart_rx_isr();
 	
 	sei();
 	

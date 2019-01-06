@@ -5,6 +5,7 @@
  *  Author: ScorpionIPX
  */ 
 #include "global.h"
+#include "control_loop.h"
 #include "display_driver.h"
 #include "fuzzy.h"
 #include "pid.h"
@@ -47,17 +48,62 @@ unsigned char usart_receive(void)
 	
 	memcpy(buffer, &KI, 4 );	usart_transmit(buffer[0]);	usart_transmit(buffer[1]);	usart_transmit(buffer[2]);	usart_transmit(buffer[3]);
 	
-	memcpy(buffer, &KD, 4 );	usart_transmit(buffer[0]);	usart_transmit(buffer[1]);	usart_transmit(buffer[2]);	usart_transmit(buffer[3]);}ISR(USART_RXC_vect)
+	memcpy(buffer, &KD, 4 );	usart_transmit(buffer[0]);	usart_transmit(buffer[1]);	usart_transmit(buffer[2]);	usart_transmit(buffer[3]);}void enable_usart_rx_isr(void){
+	UCSRB |= (1 << RXCIE); // Enable the USART receive Complete interrupt (USART_RXC)}void disable_usart_rx_isr(void){	UCSRB &= ~(1 << RXCIE); // Disable the USART receive Complete interrupt (USART_RXC)}ISR(USART_RXC_vect)
 {
 	// Code to be executed when the USART receives a byte here
 	unsigned char received_data;
 	received_data = UDR; // Fetch the received byte value
-	if(received_data)
-	{
-		update_display_buffer_2d(received_data);
-	}
 	switch(received_data)
 	{
+		case 0:
+		{
+			CONTROL_LOOP = CONTROL_LOOP_NONE;
+			OCR1B = 0;
+			break;
+		}
+		case 1:
+		{
+			if(TARGET_TICKS < MAX_TARGET_TICKS)
+			{
+				TARGET_TICKS ++;
+			}
+			break;
+		}
+		case 2:
+		{
+			if(TARGET_TICKS > MIN_TARGET_TICKS)
+			{
+				TARGET_TICKS --;
+			}
+			break;
+		}
+		case 3:
+		{
+			DATA_STREAMING = FALSE;
+			disable_usart_rx_isr();
+			CONTROL_LOOP = CONTROL_LOOP_NONE;
+			OCR1B = 0;
+			_delay_ms(3500);
+			CONTROL_LOOP = CONTROL_LOOP_PID;
+			enable_usart_rx_isr();
+			CONTROL_LOOP_START_FLAG = CONTROL_LOOP_START_FLAG_VALUE;
+			DATA_STREAMING = TRUE;
+			break;
+		}
+		case 4:
+		{
+			DATA_STREAMING = FALSE;
+			disable_usart_rx_isr();
+			CONTROL_LOOP = CONTROL_LOOP_NONE;
+			OCR1B = 0;
+			_delay_ms(2300);
+			CONTROL_LOOP = CONTROL_LOOP_FUZZY;
+			enable_usart_rx_isr();
+			CONTROL_LOOP_START_FLAG = CONTROL_LOOP_START_FLAG_VALUE;
+			DATA_STREAMING = TRUE;
+			break;
+		}
 		case 5:
 		{
 			if(DATA_STREAMING == TRUE)

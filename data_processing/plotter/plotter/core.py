@@ -8,11 +8,17 @@ import threading
 from time import sleep
 
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication, QVBoxLayout, QPushButton, QTableWidget, \
-    QTableWidgetItem, QHBoxLayout
+    QTableWidgetItem, QHBoxLayout, QLabel, QFrame
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
 
+STOP_CONTROL_LOOP_CMD = 0
+INCREASE_TARGET_TICKS_CMD = 1
+DECREASE_TARGET_TICKS_CMD = 2
+SELECT_PID_CONTROL_LOOP_CMD = 3
+SELECT_FUZZY_CONTROL_LOOP_CMD = 4
+TOGGLE_DATA_STREAMING_CMD = 5
 READ_FUZZY_TABLE_CMD = 10
 WRITE_FUZZY_TABLE_CMD = 11
 READ_PID_TABLE_CMD = 12
@@ -24,7 +30,7 @@ class Plotter(QWidget):
 
     """
     TITLE = 'PID vs Fuzzy data analyzer'
-    DATA_BUFFER_SIZE = 100
+    DATA_BUFFER_SIZE = 1000
 
     def __init__(self):
         """Constructor
@@ -35,12 +41,14 @@ class Plotter(QWidget):
 
         self.__connection__ = None
         self.connected = False
+        self.__updating_usart_data__ = False
+        self.__freeze_plotter__ = False
 
         self.ticks_data_buffer = np.zeros(self.DATA_BUFFER_SIZE)
         self.target_ticks_data_buffer = np.zeros(self.DATA_BUFFER_SIZE)
         self.power_supply_voltage_data_buffer = np.zeros(self.DATA_BUFFER_SIZE)
-        self.data_buffer_0 = np.zeros(self.DATA_BUFFER_SIZE)
-        self.data_buffer_1 = np.zeros(self.DATA_BUFFER_SIZE)
+        self.algorithm_data_buffer = np.zeros(self.DATA_BUFFER_SIZE)
+        self.algorithm_start_flag_data_buffer = np.zeros(self.DATA_BUFFER_SIZE)
 
         self.target_ticks_plot_curve = pg.PlotCurveItem(pen='g')
         self.plot_widget.addItem(self.target_ticks_plot_curve)
@@ -51,6 +59,9 @@ class Plotter(QWidget):
         self.power_supply_voltage_curve = pg.PlotCurveItem(pen='y')
         self.plot_widget.addItem(self.power_supply_voltage_curve)
 
+        self.algorithm_start_flag_curve = pg.PlotCurveItem(pen='w')
+        self.plot_widget.addItem(self.algorithm_start_flag_curve)
+
         self.read_data_streaming = False
 
         self.plot_curve = pg.PlotCurveItem()
@@ -59,7 +70,7 @@ class Plotter(QWidget):
 
         self.timer = pg.QtCore.QTimer()
         self.timer.timeout.connect(self.update_plot)
-        self.timer.start(100)
+        self.timer.start(50)
 
     def init_ui(self):
         self.setWindowTitle(self.TITLE)
@@ -69,7 +80,7 @@ class Plotter(QWidget):
         self.__load_widgets__()
 
         self.plot_widget = pg.PlotWidget()
-        self.plot_widget.setYRange(0, 60, padding=0)
+        self.plot_widget.setYRange(-1, 35, padding=0)
         self.plot_widget.setXRange(0, self.DATA_BUFFER_SIZE, padding=0)
         self.plot_widget.enableAutoRange('xy', False)
 
@@ -79,7 +90,18 @@ class Plotter(QWidget):
         connection_buttons_box.addWidget(self.connect_button)
         connection_buttons_box.addWidget(self.connection_settings_button)
         connection_buttons_box.addWidget(self.data_streaming_button)
+        connection_buttons_box.addWidget(self.freeze_plotter_button)
         connection_buttons_box.setAlignment(Qt.AlignLeading)
+        legend_box_0 = QVBoxLayout()
+        legend_box_0.setAlignment(Qt.AlignCenter)
+        legend_box_0.addWidget(self.legend_red_label)
+        legend_box_0.addWidget(self.legend_green_label)
+        legend_box_1 = QVBoxLayout()
+        legend_box_1.setAlignment(Qt.AlignCenter)
+        legend_box_1.addWidget(self.legend_yellow_label)
+        legend_box_1.addWidget(self.legend_white_label)
+        connection_buttons_box.addLayout(legend_box_0)
+        connection_buttons_box.addLayout(legend_box_1)
         hbox.addLayout(connection_buttons_box)
 
         fuzzy_buttons_box = QVBoxLayout()
@@ -93,6 +115,21 @@ class Plotter(QWidget):
         pid_buttons_box.addWidget(self.write_pid_table_button)
         tables_box.addLayout(pid_buttons_box)
         tables_box.setAlignment(Qt.AlignLeft)
+
+        control_loop_box = QHBoxLayout()
+        control_loop_target_box = QVBoxLayout()
+        control_loop_target_box.setAlignment(Qt.AlignVCenter)
+        control_loop_target_box.addWidget(self.stop_control_loop_button)
+        control_loop_target_box.addWidget(self.increase_control_loop_target_ticks_button)
+        control_loop_target_box.addWidget(self.decrease_control_loop_target_ticks_button)
+        control_loop_box.addLayout(control_loop_target_box)
+        control_loop_box.addWidget(self.target_ticks_label)
+        control_loop_select_algorithm = QVBoxLayout()
+        control_loop_select_algorithm.addWidget(self.control_loop_pid_button)
+        control_loop_select_algorithm.addWidget(self.control_loop_fuzzy_button)
+        control_loop_box.addLayout(control_loop_select_algorithm)
+
+        tables_box.addLayout(control_loop_box)
         
         hbox.addLayout(tables_box)
 
@@ -126,17 +163,20 @@ class Plotter(QWidget):
             else:
                 sync_data = ord(self.__connection__.read(1))
                 if sync_data == 255:
+                    self.__updating_usart_data__ = True
                     self.target_ticks_data_buffer = np.roll(self.target_ticks_data_buffer, 1)
                     self.ticks_data_buffer = np.roll(self.ticks_data_buffer, 1)
                     self.power_supply_voltage_data_buffer = np.roll(self.power_supply_voltage_data_buffer, 1)
-                    self.data_buffer_0 = np.roll(self.data_buffer_0, 1)
-                    self.data_buffer_1 = np.roll(self.data_buffer_1, 1)
 
-                    self.target_ticks_data_buffer[-1] = ord(self.__connection__.read())
-                    self.ticks_data_buffer[-1] = ord(self.__connection__.read())
-                    self.power_supply_voltage_data_buffer[-1] = ord(self.__connection__.read()) / 16
-                    self.data_buffer_0[-1] = ord(self.__connection__.read())
-                    self.data_buffer_1[-1] = ord(self.__connection__.read())
+                    self.algorithm_data_buffer = np.roll(self.algorithm_data_buffer, 1)
+                    self.algorithm_start_flag_data_buffer = np.roll(self.algorithm_start_flag_data_buffer, 1)
+
+                    self.target_ticks_data_buffer[0] = ord(self.__connection__.read())
+                    self.ticks_data_buffer[0] = ord(self.__connection__.read())
+                    self.power_supply_voltage_data_buffer[0] = ord(self.__connection__.read()) / 16
+                    self.algorithm_data_buffer[0] = ord(self.__connection__.read())
+                    self.algorithm_start_flag_data_buffer[0] = ord(self.__connection__.read())
+                    self.__updating_usart_data__ = False
 
         print("Stopped usart data fetching!")
 
@@ -147,8 +187,8 @@ class Plotter(QWidget):
             self.target_ticks_data_buffer = np.zeros(self.DATA_BUFFER_SIZE)
             self.ticks_data_buffer = np.zeros(self.DATA_BUFFER_SIZE)
             self.power_supply_voltage_data_buffer = np.zeros(self.DATA_BUFFER_SIZE)
-            self.data_buffer_0 = np.zeros(self.DATA_BUFFER_SIZE)
-            self.data_buffer_1 = np.zeros(self.DATA_BUFFER_SIZE)
+            self.algorithm_data_buffer = np.zeros(self.DATA_BUFFER_SIZE)
+            self.algorithm_start_flag_data_buffer = np.zeros(self.DATA_BUFFER_SIZE)
         else:
             self.read_data_streaming = True
             read_com_data_thread = threading.Thread(target=self.fetch_usart_data)
@@ -165,7 +205,60 @@ class Plotter(QWidget):
         self.__lw_connection_buttons__()
         self.__lw_fuzzy_buttons__()
         self.__lw_pid_buttons__()
-        
+        self.__lw_control_loop_buttons__()
+
+    def __lw_control_loop_buttons__(self):
+        """__lw_control_loop_buttons__
+
+        :return: None
+        """
+        self.stop_control_loop_button = QPushButton()
+        self.stop_control_loop_button.setText("STOP")
+        self.stop_control_loop_button.setToolTip("Stop control loop")
+        self.stop_control_loop_button.setFixedSize(38, 38)
+        self.stop_control_loop_button.clicked.connect(self.stop_control_loop)
+        self.stop_control_loop_button.show()
+
+        self.increase_control_loop_target_ticks_button = QPushButton()
+        self.increase_control_loop_target_ticks_button.setText("+")
+        self.increase_control_loop_target_ticks_button.setToolTip("Increase control loop target ticks")
+        self.increase_control_loop_target_ticks_button.setFixedSize(38, 38)
+        self.increase_control_loop_target_ticks_button.clicked.connect(self.increase_target_ticks)
+        self.increase_control_loop_target_ticks_button.show()
+
+        self.decrease_control_loop_target_ticks_button = QPushButton()
+        self.decrease_control_loop_target_ticks_button.setText("-")
+        self.decrease_control_loop_target_ticks_button.setToolTip("Decrease control loop target ticks")
+        self.decrease_control_loop_target_ticks_button.setFixedSize(38, 38)
+        self.decrease_control_loop_target_ticks_button.clicked.connect(self.decrease_target_ticks)
+        self.decrease_control_loop_target_ticks_button.show()
+
+        label_font = QFont()
+        # label_font.setBold(True)
+        label_font.setPointSize(70)
+
+        self.target_ticks_label = QLabel()
+        self.target_ticks_label.setFrameShape(QFrame.Panel)
+        self.target_ticks_label.setFont(label_font)
+        self.target_ticks_label.setAlignment(Qt.AlignCenter)
+        self.target_ticks_label.setText("0")
+        self.target_ticks_label.setFixedSize(120, 120)
+        self.target_ticks_label.show()
+
+        self.control_loop_pid_button = QPushButton()
+        self.control_loop_pid_button.setText("PID")
+        self.control_loop_pid_button.setToolTip("Select PID control loop")
+        self.control_loop_pid_button.setFixedSize(100, 58)
+        self.control_loop_pid_button.clicked.connect(self.select_pid_control_loop)
+        self.control_loop_pid_button.show()
+
+        self.control_loop_fuzzy_button = QPushButton()
+        self.control_loop_fuzzy_button.setText("Fuzzy")
+        self.control_loop_fuzzy_button.setToolTip("Select Fuzzy control loop")
+        self.control_loop_fuzzy_button.setFixedSize(100, 58)
+        self.control_loop_fuzzy_button.clicked.connect(self.select_fuzzy_control_loop)
+        self.control_loop_fuzzy_button.show()
+
     def __lw_connection_buttons__(self):
         """__lw_connection_buttons__
         
@@ -192,6 +285,83 @@ class Plotter(QWidget):
         self.data_streaming_button.setFixedSize(120, 40)
         self.data_streaming_button.clicked.connect(self.toggle_data_streaming)
         self.data_streaming_button.show()
+
+        self.freeze_plotter_button = QPushButton()
+        self.freeze_plotter_button.setText("FREEZE DATA")
+        self.freeze_plotter_button.setToolTip("Stop updating plotter")
+        self.freeze_plotter_button.setFixedSize(120, 40)
+        self.freeze_plotter_button.clicked.connect(self.freeze_plotter)
+        self.freeze_plotter_button.show()
+
+        self.legend_red_label = QLabel()
+        self.legend_red_label.setStyleSheet("background-color: red")
+        self.legend_red_label.setAlignment(Qt.AlignCenter)
+        self.legend_red_label.setText("CURRENT SPEED")
+        self.legend_red_label.setFixedSize(150, 12)
+        self.legend_red_label.show()
+
+        self.legend_green_label = QLabel()
+        self.legend_green_label.setStyleSheet("background-color: green")
+        self.legend_green_label.setAlignment(Qt.AlignCenter)
+        self.legend_green_label.setText("TARGET SPEED")
+        self.legend_green_label.setFixedSize(150, 12)
+        self.legend_green_label.show()
+
+        self.legend_yellow_label = QLabel()
+        self.legend_yellow_label.setStyleSheet("background-color: yellow")
+        self.legend_yellow_label.setAlignment(Qt.AlignCenter)
+        self.legend_yellow_label.setText("POWER SUPPLY VOLTAGE")
+        self.legend_yellow_label.setFixedSize(150, 12)
+        self.legend_yellow_label.show()
+
+        self.legend_white_label = QLabel()
+        self.legend_white_label.setStyleSheet("background-color: white")
+        self.legend_white_label.setAlignment(Qt.AlignCenter)
+        self.legend_white_label.setText("ALGORITHM STARTED")
+        self.legend_white_label.setFixedSize(150, 12)
+        self.legend_white_label.show()
+
+    def freeze_plotter(self):
+        """
+
+        :return:
+        """
+        if self.__freeze_plotter__:
+            self.__freeze_plotter__ = False
+            self.freeze_plotter_button.setText("FREEZE DATA")
+        else:
+            self.__freeze_plotter__ = True
+            self.freeze_plotter_button.setText("UNFREEZE DATA")
+
+    def stop_control_loop(self):
+        """stop_control_loop
+
+        :return:
+        """
+        if not self.connected:
+            print("Not connected!")
+            return
+        self.send_usart_data(STOP_CONTROL_LOOP_CMD)
+
+    def increase_target_ticks(self):
+        """increase_target_ticks
+
+        :return:
+        """
+        if not self.connected:
+            print("Not connected!")
+            return
+        self.send_usart_data(INCREASE_TARGET_TICKS_CMD)
+
+    def decrease_target_ticks(self):
+        """decrease_target_ticks
+
+        :return:
+        """
+        if not self.connected:
+            print("Not connected!")
+            return
+        self.send_usart_data(DECREASE_TARGET_TICKS_CMD)
 
     def connect(self):
         """connect
@@ -266,9 +436,32 @@ class Plotter(QWidget):
         self.write_pid_table_button.show()
 
     def update_plot(self):
+        if self.__freeze_plotter__:
+            return
+
+        while self.__updating_usart_data__:
+            pass
+
         self.target_ticks_plot_curve.setData(self.target_ticks_data_buffer)
+        self.target_ticks_label.setText(str(int(self.target_ticks_data_buffer[0])))
         self.ticks_plot_curve.setData(self.ticks_data_buffer)
         self.power_supply_voltage_curve.setData(self.power_supply_voltage_data_buffer)
+        self.algorithm_start_flag_curve.setData(self.algorithm_start_flag_data_buffer)
+        if self.algorithm_data_buffer[0] == 0:
+            self.control_loop_pid_button.setStyleSheet("background-color: none")
+            self.control_loop_fuzzy_button.setStyleSheet("background-color: none")
+            pass
+        elif self.algorithm_data_buffer[0] == 1:
+            self.control_loop_pid_button.setStyleSheet("background-color: green")
+            self.control_loop_fuzzy_button.setStyleSheet("background-color: none")
+            pass
+        elif self.algorithm_data_buffer[0] == 2:
+            self.control_loop_pid_button.setStyleSheet("background-color: none")
+            self.control_loop_fuzzy_button.setStyleSheet("background-color: green")
+            pass
+        else:
+            self.control_loop_pid_button.setStyleSheet("background-color: red")
+            self.control_loop_fuzzy_button.setStyleSheet("background-color: red")
 
     def center(self):
         qr = self.frameGeometry()
@@ -480,6 +673,29 @@ class Plotter(QWidget):
         """
         bytes_sent = self.__connection__.write(bytes([data]))
         # print("Bytes sent: {}".format(bytes_sent))
+
+    def select_pid_control_loop(self):
+        """
+
+        :return:
+        """
+        if not self.connected:
+            print("Not connected to EVB5.1!")
+            return
+
+        self.send_usart_data(SELECT_PID_CONTROL_LOOP_CMD)
+
+    def select_fuzzy_control_loop(self):
+        """
+
+        :return:
+        """
+        if not self.connected:
+            print("Not connected to EVB5.1!")
+            return
+
+        self.send_usart_data(SELECT_FUZZY_CONTROL_LOOP_CMD)
+
 
 
 def main():
