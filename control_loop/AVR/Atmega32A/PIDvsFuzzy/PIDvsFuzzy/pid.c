@@ -8,7 +8,9 @@
 #include "global.h"
 #include "pid.h"
 #include "control_loop.h"
+#include "eeprom_driver.h"
 #include "optocoupler_driver.h"
+#include <util/delay.h>
 
 float KP;
 float KI;
@@ -31,6 +33,10 @@ void init_pid(void)
 	pid_derivative = 0;
 	pid_previous_error = 0;
 	pid_result = 0;
+	
+	_delay_ms(1);
+	load_pid_constants_from_eeprom();
+	_delay_ms(1);
 }
 
 void pid(void)

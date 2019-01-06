@@ -19,6 +19,8 @@ DECREASE_TARGET_TICKS_CMD = 2
 SELECT_PID_CONTROL_LOOP_CMD = 3
 SELECT_FUZZY_CONTROL_LOOP_CMD = 4
 TOGGLE_DATA_STREAMING_CMD = 5
+UPDATE_PID_TABLE_CMD = 6
+UPDATE_FUZZY_TABLE_CMD = 7
 READ_FUZZY_TABLE_CMD = 10
 WRITE_FUZZY_TABLE_CMD = 11
 READ_PID_TABLE_CMD = 12
@@ -136,6 +138,86 @@ class Plotter(QWidget):
         self.setGeometry(10, 10, 1000, 600)
         self.center()
         self.show()
+
+    def update_pid_table(self):
+        """update_pid_table
+
+        :return:
+        """
+        if not self.connected:
+            print("Not connected!")
+            return
+        try:
+            kp = float(self.pid_table.item(0, 0).text())
+            # print("KP: V:{} TYPE:{} :".format(kp, type(kp)))
+            ki = float(self.pid_table.item(1, 0).text())
+            # print("KI: V:{} TYPE:{} :".format(ki, type(ki)))
+            kd = float(self.pid_table.item(2, 0).text())
+            # print("KD: V:{} TYPE:{} :".format(kd, type(kd)))
+        except Exception as err:
+            print("Unable to update PID table! {}".format(err))
+            return
+
+        kp_bytes = struct.pack('f', kp)
+        kp_bytes_values = []
+        for kp_byte in kp_bytes:
+            kp_bytes_values.append(kp_byte)
+
+        ki_bytes = struct.pack('f', ki)
+        ki_bytes_values = []
+        for ki_byte in ki_bytes:
+            ki_bytes_values.append(ki_byte)
+
+        kd_bytes = struct.pack('f', kd)
+        kd_bytes_values = []
+        for kd_byte in kd_bytes:
+            kd_bytes_values.append(kd_byte)
+
+        pid_constants_bytes_values = []
+        pid_constants_bytes_values.extend(kp_bytes_values)
+        pid_constants_bytes_values.extend(ki_bytes_values)
+        pid_constants_bytes_values.extend(kd_bytes_values)
+
+        self.send_usart_data(UPDATE_PID_TABLE_CMD)
+        sleep(.016)
+
+        for constant_byte_value in pid_constants_bytes_values:
+            self.send_usart_data(constant_byte_value)
+            sleep(.0005)
+
+        print("PID table updated!")
+
+    def update_fuzzy_table(self):
+        """update_fuzzy_table
+
+        :return:
+        """
+        if not self.connected:
+            print("Not connected!")
+            return
+
+        values = []
+        try:
+
+            for i in range(5):
+                for j in range(9):
+                    values.append(int(self.fuzzy_table.item(i, j).text()))
+        except Exception as err:
+            print("Unable to update Fuzzy table! {}".format(err))
+            return
+
+        values_bytes = []
+        for value in values:
+            value_bytes = struct.pack('i', value)
+            values_bytes.append(value_bytes[0])
+            values_bytes.append(value_bytes[1])
+
+        self.send_usart_data(UPDATE_FUZZY_TABLE_CMD)
+        sleep(.016)
+
+        for constant_byte_value in values_bytes:
+            self.send_usart_data(constant_byte_value)
+            sleep(.0005)
 
     def fetch_usart_data(self):
         """fetch_usart_data
@@ -414,7 +496,7 @@ class Plotter(QWidget):
         self.write_fuzzy_table_button.setText("WRITE")
         self.write_fuzzy_table_button.setToolTip("Write Fuzzy table in the control system (upload from PC to uC)")
         self.write_fuzzy_table_button.setFixedSize(60, 60)
-        self.write_fuzzy_table_button.clicked.connect(self.write_fuzzy_table)
+        self.write_fuzzy_table_button.clicked.connect(self.update_fuzzy_table)
         self.write_fuzzy_table_button.show()
 
     def __lw_pid_buttons__(self):
@@ -433,6 +515,7 @@ class Plotter(QWidget):
         self.write_pid_table_button.setText("WRITE")
         self.write_pid_table_button.setToolTip("Write PID table in the control system (upload from PC to uC)")
         self.write_pid_table_button.setFixedSize(60, 60)
+        self.write_pid_table_button.clicked.connect(self.update_pid_table)
         self.write_pid_table_button.show()
 
     def update_plot(self):
@@ -629,7 +712,7 @@ class Plotter(QWidget):
                 item.setTextAlignment(Qt.AlignCenter)
                 self.fuzzy_table.setItem(i, j, item)
 
-        print("Fuzy table transmitted!")
+        print("Fuzzy table received!")
 
         self.__connection__.read_all()
 
@@ -657,10 +740,10 @@ class Plotter(QWidget):
             value = self.__connection__.read(4)
             # print(value)
             value = struct.unpack('f', value)[0]
-            item = QTableWidgetItem(str(value)[:8])
+            item = QTableWidgetItem("{:.3f}".format(value))
             item.setTextAlignment(Qt.AlignCenter)
             self.pid_table.setItem(0, i, item)
-        print("PID table transmitted!")
+        print("PID table received!")
 
         self.__connection__.read_all()
 

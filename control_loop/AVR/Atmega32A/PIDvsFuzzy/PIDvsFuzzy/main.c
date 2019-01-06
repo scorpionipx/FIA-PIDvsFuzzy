@@ -32,6 +32,8 @@ int main(void)
     init_pid();
 	init_pwm();
 	init_usart(MYUBRR);
+	load_fuzzy_table_from_eeprom();
+	load_pid_constants_from_eeprom();
 	
 	_delay_ms(3200);
 	enable_usart_rx_isr();

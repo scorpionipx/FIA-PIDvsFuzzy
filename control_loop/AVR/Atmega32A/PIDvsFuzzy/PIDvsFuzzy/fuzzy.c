@@ -7,8 +7,10 @@
 
 #include "global.h"
 #include "control_loop.h"
+#include "eeprom_driver.h"
 #include "fuzzy.h"
 #include "optocoupler_driver.h"
+#include <util/delay.h>
 
 int fuzzy_error;
 int fuzzy_previous_error;
@@ -18,34 +20,21 @@ int fuzzy_result;
 int fuzzy_error_index;
 int fuzzy_delta_error_index;
 
-//int fuzzy_table[5][9] = {
-	//{-6, -5, -4, -3, -2, -1, 0, 1, 2},
-	//{-5, -4, -3, -2, -1, 0, 1, 2, 3},
-	//{-4, -3, -2, -1, 0, 1, 2, 3, 4},
-	//{-3, -2, -1, 0, 1, 2, 3, 4, 5},
-	//{-2, -1, 0, 1, 2, 3, 4, 5, 6},
-//};
-
-//int fuzzy_table[5][9] = {
-	//{-8, -4, -2, -1, 0, 1, 2, 4, 8},
-	//{-8, -4, -2, -1, 0, 1, 2, 4, 8},
-	//{-8, -4, -2, -1, 0, 1, 2, 4, 8},
-	//{-8, -4, -2, -1, 0, 4, 8, 16, 32},
-	//{-8, -4, -2, -1, 0, 8, 16, 32, 64},
-//};
-
 int fuzzy_table[5][9] = {
-{-4, -3, -2, -1, 0, 1, 2, 3, 4},
-{-4, -3, -2, -1, 0, 1, 2, 3, 4},
-{-4, -3, -2, -1, 0, 1, 2, 3, 4},
-{-4, -3, -2, -1, 0, 1, 2, 3, 4},
-{-4, -3, -2, -1, 0, 1, 2, 3, 4},
+	{-2, -1, 0, 1, 2, 3, 4, 5, 6},
+	{-3, -2, -1, 0, 1, 2, 3, 4, 5},
+	{-4, -3, -2, -1, 0, 1, 2, 3, 4},
+	{-5, -4, -3, -2, -1, 0, 1, 2, 3},
+	{-6, -5, -4, -3, -2, -1, 0, 1, 2},
 };
 
 void init_fuzzy(void)
 {
 	fuzzy_error = 0;
 	fuzzy_result = 0;
+	_delay_ms(1);
+	load_fuzzy_table_from_eeprom();
+	_delay_ms(1);
 }
 
 void fuzzy(void)
